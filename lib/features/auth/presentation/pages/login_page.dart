@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_elevated_button.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_text_field.dart';
+import 'package:tasks_to_do_app/features/auth/presentation/providers/theme_provider.dart';
 import 'package:tasks_to_do_app/features/auth/presentation/providers/obscure_provider.dart';
 import 'package:tasks_to_do_app/features/user_management/presentation/pages/new_user_page.dart';
 
+//CON CONSUMER WIDGET RIVERPOD
 class LoginPage extends ConsumerWidget {
   LoginPage({super.key});
 
@@ -17,9 +19,26 @@ class LoginPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     //instancia del proveedor
     final obscureText = ref.watch(obscureProvider);
+    final themeMode = ref.watch(themeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Task Manager'), centerTitle: true),
+      appBar: AppBar(
+        title: Text('Task Manager'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              ref.read(themeProvider.notifier).toogleTheme();
+            },
+            icon: Icon(
+              themeMode == ThemeMode.light ? Icons.light_mode : Icons.dark_mode,
+            ),
+          ),
+        ],
+
+        //                    ref.read(obscureProvider.notifier).toggleObscureText();
+      ),
+
       //Cuerpo de aplicacion
       body: SingleChildScrollView(
         child: Form(
@@ -80,7 +99,13 @@ class LoginPage extends ConsumerWidget {
                       ? Icon(Icons.visibility)
                       : Icon(Icons.visibility_off),
                   color: Colors.deepPurpleAccent,
-                  onPressed: () {},
+                  onPressed: () {
+                    //Update obscure Textby provider with legacy
+                    // ref.read(obscureProvider.notifier).state = !obscureText;
+
+                    //Update oscureText by provier in new
+                    ref.read(obscureProvider.notifier).toggleObscureText();
+                  },
                 ),
               ),
               Padding(
@@ -177,6 +202,8 @@ class LoginPage extends ConsumerWidget {
     );
   }
 }
+
+//con STATEFUL
 // class LoginPage extends StatefulWidget {
 //   const LoginPage({super.key});
 
