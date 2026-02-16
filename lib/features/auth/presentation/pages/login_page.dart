@@ -3,20 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_elevated_button.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_text_field.dart';
+import 'package:tasks_to_do_app/core/routes/app_router.dart';
 import 'package:tasks_to_do_app/features/auth/presentation/providers/theme_provider.dart';
 import 'package:tasks_to_do_app/features/auth/presentation/providers/obscure_provider.dart';
-import 'package:tasks_to_do_app/features/user_management/presentation/pages/new_user_page.dart';
 
 //CON CONSUMER WIDGET RIVERPOD
-class LoginPage extends ConsumerWidget {
-  LoginPage({super.key});
+class LoginPage extends ConsumerStatefulWidget {
+  const LoginPage({super.key});
 
-  final TextEditingController emailIdController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  @override
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
+  final TextEditingController _emailIdController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    _emailIdController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Widget build(BuildContext context) {
     //instancia del proveedor
     final obscureText = ref.watch(obscureProvider);
     final themeMode = ref.watch(themeProvider);
@@ -42,6 +53,7 @@ class LoginPage extends ConsumerWidget {
       //Cuerpo de aplicacion
       body: SingleChildScrollView(
         child: Form(
+          key: formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +70,7 @@ class LoginPage extends ConsumerWidget {
               const SizedBox(height: 40),
 
               CustomTextField(
-                controller: emailIdController,
+                controller: _emailIdController,
                 hintText: 'Enter your email',
                 obscureText: false,
                 keyboardType: TextInputType.emailAddress,
@@ -81,7 +93,7 @@ class LoginPage extends ConsumerWidget {
               ),
               SizedBox(height: 18, width: double.infinity),
               CustomTextField(
-                controller: passwordController,
+                controller: _passwordController,
                 hintText: 'Enter your password',
                 obscureText: obscureText,
                 keyboardType: TextInputType.visiblePassword,
@@ -120,12 +132,14 @@ class LoginPage extends ConsumerWidget {
               CustomElevatedButton(
                 text: 'Login',
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NewUserPage(),
-                    ),
-                  );
+                  // Esto revisa todos los validadores del Form
+                  if (formKey.currentState!.validate()) {
+                    // SI TODO ES VÁLIDO:
+                    print("Email: ${_emailIdController.text}");
+                  } else {
+                    // SI HAY ERRORES:
+                    print("Validación fallida");
+                  }
                 },
               ),
               const SizedBox(height: 32),
@@ -187,7 +201,9 @@ class LoginPage extends ConsumerWidget {
                 children: [
                   Text("Don't have an account?"),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      AppRouter.push(context, AppRouter.newUser);
+                    },
                     child: Text(
                       "Register",
                       style: TextStyle(color: Colors.deepPurpleAccent),

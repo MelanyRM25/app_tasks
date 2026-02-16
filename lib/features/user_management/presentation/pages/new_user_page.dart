@@ -1,34 +1,40 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_elevated_button.dart';
 import 'package:tasks_to_do_app/core/presentation/widgets/custom_text_field.dart';
+import 'package:tasks_to_do_app/features/auth/presentation/providers/theme_provider.dart';
 
-class NewUserPage extends StatefulWidget {
+class NewUserPage extends ConsumerStatefulWidget {
   const NewUserPage({super.key});
 
   @override
-  State<NewUserPage> createState() => _NewUserPageState();
+  ConsumerState<NewUserPage> createState() => _NewUserPageState();
 }
 
-class _NewUserPageState extends State<NewUserPage> {
+class _NewUserPageState extends ConsumerState<NewUserPage> {
   // Controllers with initial data
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController occupationController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _occupationController = TextEditingController();
   //key del formulario
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    phoneController.dispose();
-    occupationController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _occupationController.dispose();
     super.dispose();
   }
 
   Widget build(BuildContext context) {
+    final textFieldSpace = const SizedBox(height: 25);
+
+    final themeMode = ref.watch(themeProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -41,6 +47,16 @@ class _NewUserPageState extends State<NewUserPage> {
           // but here we are on scaffold background.
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              ref.read(themeProvider.notifier).toogleTheme();
+            },
+            icon: Icon(
+              themeMode == ThemeMode.light ? Icons.light_mode : Icons.dark_mode,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -52,11 +68,22 @@ class _NewUserPageState extends State<NewUserPage> {
               const SizedBox(height: 10),
               Stack(
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Color(0xFFE0E0E0),
-                    backgroundImage: NetworkImage(
-                      'https://images.unsplash.com/photo-1494790108377-be9c29b29330', // Imagen de ejemplo
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: themeMode == ThemeMode.light
+                            ? Colors.deepPurpleAccent
+                            : Colors.white,
+                        width: 4,
+                      ),
+                    ),
+                    child: const CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Color(0xFFE0E0E0),
+                      backgroundImage: NetworkImage(
+                        'https://images.unsplash.com/photo-1494790108377-be9c29b29330', // Imagen de ejemplo
+                      ),
                     ),
                   ),
 
@@ -76,10 +103,7 @@ class _NewUserPageState extends State<NewUserPage> {
                         decoration: BoxDecoration(
                           color: Colors.deepPurpleAccent,
                           shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white, // Borde blanco para resaltar
-                            width: 3,
-                          ),
+
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.5),
@@ -92,6 +116,7 @@ class _NewUserPageState extends State<NewUserPage> {
                           icon: Icon(Icons.edit),
                           onPressed: () {},
                           color: Colors.white,
+
                           iconSize: 20,
                         ),
                       ),
@@ -110,10 +135,9 @@ class _NewUserPageState extends State<NewUserPage> {
                   fontSize: 14,
                 ),
               ),
-              const SizedBox(height: 20),
-              // Form Fields
+              textFieldSpace, // Form Fields
               CustomTextField(
-                controller: nameController,
+                controller: _nameController,
                 obscureText: false,
                 hintText: 'Enter full name',
                 keyboardType: TextInputType.name,
@@ -129,9 +153,8 @@ class _NewUserPageState extends State<NewUserPage> {
               ),
 
               const SizedBox(height: 20, width: double.infinity),
-
               CustomTextField(
-                controller: emailController,
+                controller: _emailController,
                 obscureText: false,
                 hintText: 'Enter email',
                 keyboardType: TextInputType.emailAddress,
@@ -148,10 +171,9 @@ class _NewUserPageState extends State<NewUserPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
-
+              textFieldSpace, // Form Fields
               CustomTextField(
-                controller: phoneController,
+                controller: _phoneController,
                 obscureText: false,
                 hintText: 'Enter phone number',
                 keyboardType: TextInputType.phone,
@@ -169,9 +191,9 @@ class _NewUserPageState extends State<NewUserPage> {
                 },
               ),
 
-              const SizedBox(height: 20),
+              textFieldSpace, // Form Fields
               CustomTextField(
-                controller: occupationController,
+                controller: _occupationController,
                 obscureText: false,
                 hintText: 'Enter occupation',
                 keyboardType: TextInputType.text,
@@ -186,7 +208,7 @@ class _NewUserPageState extends State<NewUserPage> {
                 },
               ),
 
-              const SizedBox(height: 50),
+              textFieldSpace, // Form Fields
               CustomElevatedButton(
                 text: 'Save Changes',
                 icon: const Icon(Icons.check_circle),
